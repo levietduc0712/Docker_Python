@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Calculate Sum and Plot Random Graph</h1>
+    <form id="sum-form">
+        <label for="num1">Enter first number:</label>
+        <input type="text" id="num1" name="num1"><br><br>
+        <label for="num2">Enter second number:</label>
+        <input type="text" id="num2" name="num2"><br><br>
+        <button type="button" id="calculate-sum">Calculate Sum</button>
+    </form>
+
+    <div id="sum-result"></div>
+
+    <form id="plot-form">
+        <button type="button" id="plot">Plot Graph</button>
+    </form>
+
+    <div id="plot-container"></div>
+
+    <script>
+        $(document).ready(function () {
+            $('#calculate-sum').click(function () {
+                $.ajax({
+                    url: '/sum',
+                    type: 'POST',
+                    data: $('#sum-form').serialize(),
+                    success: function (response) {
+                        $('#sum-result').html('Sum: ' + response.result);
+                    }
+                });
+            });
+
+            $('#plot').click(function () {
+                $.ajax({
+                    url: '/plot',
+                    type: 'POST',
+                    success: function (response) {
+                        $('#plot-container').html('<img src="data:image/png;base64,' + response.plot_url + '" alt="Random Graph">');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
