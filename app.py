@@ -14,23 +14,35 @@ def calculate_roots(a, b, c):
     return roots
 
 def plot_graph(a, b, c):
-    x = np.linspace(-10, 10, 400)
+    # Calculate the x-coordinate of the vertex
+    vertex_x = -b / (2 * a)
+    
+    # Determine the range of x values for the graph
+    x_range = max(10, abs(vertex_x) + 5)  # Ensure the range is at least 10 units
+    
+    # Generate x values for plotting
+    x = np.linspace(vertex_x - x_range, vertex_x + x_range, 400)
+    
+    # Calculate corresponding y values
     y = a*x**2 + b*x + c
+    
+    # Plot the graph
     plt.plot(x, y)
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Quadratic Equation Graph')
     plt.grid(True)
-    plt.axhline(0, color='black',linewidth=0.5)
-    plt.axvline(0, color='black',linewidth=0.5)
-    plt.xlim(-10, 10)
-    plt.ylim(-10, 10)
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    plt.xlim(vertex_x - x_range, vertex_x + x_range)  # Set x-axis limits centered at the vertex
+    plt.ylim(min(y) - 5, max(y) + 5)  # Set y-axis limits to include the entire graph with some padding
     img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     graph_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
     return graph_url
+
 
 @app.route('/', methods=['GET', 'POST'])
 def quadratic():
