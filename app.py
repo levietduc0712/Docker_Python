@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, render_template
+import sympy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 from io import BytesIO
@@ -6,40 +7,59 @@ import base64
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def calculate_roots(a, b, c):
+    x = sp.symbols('x')
+    equation = sp.Eq(a*x**2 + b*x + c, 0)
+    roots = sp.solve(equation, x)
+    return roots
 
-@app.route('/sum', methods=['POST'])
-def calculate_sum():
-    num1 = int(request.form['num1'])
-    num2 = int(request.form['num2'])
-    result = num1 + num2
-    return jsonify({'result': result})
-
-@app.route('/plot', methods=['POST'])
-def plot():
-    # Generate 50 random numbers
-    x = np.arange(1, 51)
-    y = np.random.rand(50)
-    
-    plt.figure(figsize=(8, 6))
+def plot_graph(a, b, c):
+    x = np.linspace(-10, 10, 400)
+    y = a*x**2 + b*x + c
     plt.plot(x, y)
-    plt.xlabel('Index')
-    plt.ylabel('Random Number')
-    plt.title('Plot of 50 Random Numbers')
-    
-    # Save plot to a BytesIO object
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Quadratic Equation Graph')
+    plt.grid(True)
+    plt.axhline(0, color='black',linewidth=0.5)
+    plt.axvline(0, color='black',linewidth=0.5)
+    plt.xlim(-10, 10)
+    plt.ylim(-10, 10)
     img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
-    
-    # Encode plot image as base64 string
-    plot_url = base64.b64encode(img.getvalue()).decode()
-    
+    graph_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
-    
-    return jsonify({'plot_url': plot_url})
+    return graph_url
+
+@app.route('/', methods=['GET', 'POST'])
+def quadratic():
+    if request.method == 'POST':
+        a = float(request.form['a'])
+        b = float(request.form['b'])
+        c = float(request.form['c'])
+        
+        equation_str = f"{a}x^2 "
+        if b >= 0:
+            equation_str += "+ "
+        else:
+            equation_str += "- "
+        equation_str += f"{abs(b)}x "
+        if c >= 0:
+            equation_str += "+ "
+        else:
+            equation_str += "- "
+        equation_str += f"{abs(c)} = 0"
+        
+        roots = calculate_roots(a, b, c)
+        
+        if 'plot' in request.form:
+            graph_url = plot_graph(a, b, c)
+            return render_template('index.html', equation=equation_str, roots=roots, plot=True, graph_url=graph_url)
+        else:
+            return render_template('index.html', equation=equation_str, roots=roots, plot=False)
+        
+    return render_template('index.html', equation=None, roots=None, plot=False)
 
 if __name__ == '__main__':
     app.run(debug=True)

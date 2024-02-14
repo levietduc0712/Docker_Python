@@ -4,50 +4,91 @@
     <meta charset="UTF-8">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Docker App</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Quadratic Equation Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result p {
+            margin: 10px 0;
+        }
+        .graph {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Calculate Sum and Plot Random Graph</h1>
-    <form id="sum-form">
-        <label for="num1">Enter first number:</label>
-        <input type="text" id="num1" name="num1"><br><br>
-        <label for="num2">Enter second number:</label>
-        <input type="text" id="num2" name="num2"><br><br>
-        <button type="button" id="calculate-sum">Calculate Sum</button>
-    </form>
-
-    <div id="sum-result"></div>
-
-    <form id="plot-form">
-        <button type="button" id="plot">Plot Graph</button>
-    </form>
-
-    <div id="plot-container"></div>
-
-    <script>
-        $(document).ready(function () {
-            $('#calculate-sum').click(function () {
-                $.ajax({
-                    url: '/sum',
-                    type: 'POST',
-                    data: $('#sum-form').serialize(),
-                    success: function (response) {
-                        $('#sum-result').html('Sum: ' + response.result);
-                    }
-                });
-            });
-
-            $('#plot').click(function () {
-                $.ajax({
-                    url: '/plot',
-                    type: 'POST',
-                    success: function (response) {
-                        $('#plot-container').html('<img src="data:image/png;base64,' + response.plot_url + '" alt="Random Graph">');
-                    }
-                });
-            });
-        });
-    </script>
+    <div class="container">
+        <h1>Quadratic Equation Solver</h1>
+        <form action="/" method="post">
+            <label for="a">Coefficient a:</label>
+            <input type="number" step="any" name="a" id="a" required><br><br>
+            <label for="b">Coefficient b:</label>
+            <input type="number" step="any" name="b" id="b" required><br><br>
+            <label for="c">Coefficient c:</label>
+            <input type="number" step="any" name="c" id="c" required><br><br>
+            <button type="submit">Calculate Roots</button>
+            <button type="submit" name="plot">Calculate Roots and Plot Graph</button>
+        </form>
+        <div class="result">
+            {% if equation %}
+                <p>Entered Equation: {{ equation }}</p>
+            {% endif %}
+            {% if roots %}
+                <p>Roots:</p>
+                <ul>
+                {% for root in roots %}
+                    <li>x{{ loop.index }} = {{ root }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div class="graph">
+            {% if plot %}
+                <img src="data:image/png;base64,{{ graph_url }}" alt="Quadratic Equation Graph">
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>
