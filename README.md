@@ -1,6 +1,6 @@
 # Project Title
 
-This is a Flask web application that allows users to calculate the sum of two numbers and plot a graph of 50 random numbers.
+The Quadratic Equation Solver with Graph Plotter is a web application built using Python and Flask framework. It allows users to input coefficients of a quadratic equation and calculates the roots of the equation. Additionally, it provides an option to plot the graph of the quadratic equation.
 
 ## Prerequisites
 
